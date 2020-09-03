@@ -1,8 +1,0 @@
-prefix=/home/atahabaki/Projects/drone/ros-opencv/install
-
-Name: tankmanager
-Description: Description of tankmanager
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

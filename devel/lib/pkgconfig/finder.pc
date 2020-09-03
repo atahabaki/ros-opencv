@@ -1,8 +1,0 @@
-prefix=/home/atahabaki/Projects/drone/ros-opencv/devel
-
-Name: finder
-Description: Description of finder
-Version: 0.0.0
-Cflags: -I/home/atahabaki/Projects/drone/ros-opencv/devel/include
-Libs: -L${prefix}/lib 
-Requires: roscpp rospy message_runtime
