@@ -132,6 +132,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/atahabaki/Projects/drone/ros-opencv/build/gtest/cmake_install.cmake")
   include("/home/atahabaki/Projects/drone/ros-opencv/build/finder/cmake_install.cmake")
+  include("/home/atahabaki/Projects/drone/ros-opencv/build/tankmanager/cmake_install.cmake")
 
 endif()
 

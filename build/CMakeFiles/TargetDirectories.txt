@@ -69,3 +69,10 @@
 /home/atahabaki/Projects/drone/ros-opencv/build/finder/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir
 /home/atahabaki/Projects/drone/ros-opencv/build/finder/CMakeFiles/test.dir
 /home/atahabaki/Projects/drone/ros-opencv/build/finder/CMakeFiles/edit_cache.dir
+/home/atahabaki/Projects/drone/ros-opencv/build/tankmanager/CMakeFiles/install/strip.dir
+/home/atahabaki/Projects/drone/ros-opencv/build/tankmanager/CMakeFiles/install/local.dir
+/home/atahabaki/Projects/drone/ros-opencv/build/tankmanager/CMakeFiles/install.dir
+/home/atahabaki/Projects/drone/ros-opencv/build/tankmanager/CMakeFiles/list_install_components.dir
+/home/atahabaki/Projects/drone/ros-opencv/build/tankmanager/CMakeFiles/rebuild_cache.dir
+/home/atahabaki/Projects/drone/ros-opencv/build/tankmanager/CMakeFiles/edit_cache.dir
+/home/atahabaki/Projects/drone/ros-opencv/build/tankmanager/CMakeFiles/test.dir

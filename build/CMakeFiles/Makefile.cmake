@@ -18,10 +18,14 @@ set(CMAKE_MAKEFILE_DEPENDS
   "finder/catkin_generated/ordered_paths.cmake"
   "finder/catkin_generated/package.cmake"
   "finder/cmake/finder-genmsg.cmake"
+  "tankmanager/catkin_generated/ordered_paths.cmake"
+  "tankmanager/catkin_generated/package.cmake"
   "/home/atahabaki/Projects/drone/ros-opencv/devel/share/finder/cmake/finder-msg-paths.cmake"
   "/home/atahabaki/Projects/drone/ros-opencv/src/CMakeLists.txt"
   "/home/atahabaki/Projects/drone/ros-opencv/src/finder/CMakeLists.txt"
   "/home/atahabaki/Projects/drone/ros-opencv/src/finder/package.xml"
+  "/home/atahabaki/Projects/drone/ros-opencv/src/tankmanager/CMakeLists.txt"
+  "/home/atahabaki/Projects/drone/ros-opencv/src/tankmanager/package.xml"
   "/opt/ros/noetic/share/catkin/cmake/all.cmake"
   "/opt/ros/noetic/share/catkin/cmake/assert.cmake"
   "/opt/ros/noetic/share/catkin/cmake/atomic_configure_file.cmake"
@@ -218,6 +222,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "gtest/googlemock/CMakeFiles/CMakeDirectoryInformation.cmake"
   "gtest/googletest/CMakeFiles/CMakeDirectoryInformation.cmake"
   "finder/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "tankmanager/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:

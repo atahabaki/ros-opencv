@@ -1,2 +1,2 @@
-finder
+finder:tankmanager
 -DCATKIN_DEVEL_PREFIX=/home/atahabaki/Projects/drone/ros-opencv/devel -DCMAKE_INSTALL_PREFIX=/home/atahabaki/Projects/drone/ros-opencv/install -G Unix Makefiles
