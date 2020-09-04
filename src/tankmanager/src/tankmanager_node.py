@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import rospy
 import time
 from std_msgs.msg import String
@@ -14,9 +14,12 @@ class TankManager:
         self.rc_channel=rc_channel
         self.min_pwm=min_pwm
         self.max_pwm=max_pwm
-        rospy.init_node(self._NODE_NAME,anonymous=True)
+        #rospy.init_node(self._NODE_NAME,anonymous=True)
+        rospy.init_node(self._NODE_NAME)
         self.pub_stat = rospy.Publisher(self._NODE_STATUS, String, queue_size=10)
-        self.rate = rospy.Rate(1)
+        self.rate = rospy.Rate(60)
+        #If apm is running kill this process
+        navio.util.check_apm()
 
     def task_finished(self):
         self.pub_stat.publish("finished")

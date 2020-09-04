@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import cv2 as cv
 import numpy as np
 
@@ -79,7 +79,8 @@ class Detective:
                     M = cv.moments(approx)
                     if M['m00'] != 0:
                         cx, cy = (int(M['m10']/M['m00']),int(M['m01']/M['m00']))
-                    print("center:",(cx,cy))
+                    if self.verbose:
+                        print("center:",(cx,cy))
                     if drawContours:
                         cv.drawContours(img,[approx],i,(0,0,0),10)
                         cv.line(img, (cx,cy), (img.shape[1],self.shape[0]),(0,0,0),10)
@@ -113,7 +114,8 @@ class Detective:
                 M = cv.moments(approx)
                 if M['m00'] != 0:
                     cx, cy = (int(M['m10']/M['m00']),int(M['m01']/M['m00']))
-                print("center:",(cx,cy))
+                if self.verbose:
+                    print("center:",(cx,cy))
                 if drawContours:
                     cv.drawContours(img,[approx],-1,(0,0,0),10)
                     cv.line(img, (cx,cy), (img.shape[1],self.shape[0]),(0,0,0),10)
@@ -146,7 +148,8 @@ class Detective:
             M = cv.moments(approx)
             if M['m00'] != 0:
                 cx, cy = (int(M['m10']/M['m00']),int(M['m01']/M['m00']))
-            print("center:",(cx,cy))
+            if self.verbose:
+                print("center:",(cx,cy))
             if drawContours:
                 cv.drawContours(img,[approx],-1,(0,0,0),10)
                 cv.line(img, (cx,cy), (img.shape[1],self.shape[0]),(0,0,0),10)
@@ -218,7 +221,8 @@ class Detective:
                 M = cv.moments(approx)
                 if M['m00'] != 0:
                     cx, cy = (int(M['m10']/M['m00']),int(M['m01']/M['m00']))
-                print("center:",(cx,cy))
+                if self.verbose:
+                    print("center:",(cx,cy))
                 if drawContours:
                     cv.drawContours(img,[approx],-1,(0,0,0),10)
                     cv.line(img, (cx,cy), (img.shape[1],self.shape[0]),(0,0,0),10)
@@ -253,7 +257,8 @@ class Detective:
                 M = cv.moments(approx)
                 if M['m00'] != 0:
                     cx, cy = (int(M['m10']/M['m00']),int(M['m01']/M['m00']))
-                print("center:",(cx,cy))
+                if self.verbose:
+                    print("center:",(cx,cy))
                 if drawContours:
                     cv.drawContours(img,[approx],-1,(0,0,0),5)
         return (img,cx,cy)
@@ -304,7 +309,8 @@ class Detective:
                     M = cv.moments(approx)
                     if M['m00'] != 0:
                         cx, cy = (int(M['m10']/M['m00']),int(M['m01']/M['m00']))
-                    print("center:",(cx,cy))
+                    if self.verbose:
+                        print("center:",(cx,cy))
                     if drawContours:
                         cv.drawContours(img,[approx],-1,(0,0,0),10)
                         cv.line(img, (cx,cy), (img.shape[1],self.shape[0]),(0,0,0),10)
