@@ -1,0 +1,4 @@
+build/**
+devel/**
+src/finder/src/__pycache__/**
+src/tankmanager/src/__pycache__/**
