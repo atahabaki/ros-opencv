@@ -36,25 +36,55 @@ class TankManager:
     def publish_status(self):
         self.pub_stat.publish(self.state)
 
+    def send_min_pwm(self,pwm):
+        rospy.loginfo("Sending min pwm ({}) to {}. channel...".format(self.min_pwm,self.rc_channel))
+        pwm.set_duty_cycle(self.min_pwm)
+        rospy.loginfo("Sent")
+        self.sleep(1)
+
+    def send_max_pwm(self,pwm):
+        rospy.loginfo("Sending max pwm ({}) to {}. channel...".format(self.min_pwm,self.rc_channel))
+        pwm.set_duty_cycle(self.max_pwm)
+        rospy.loginfo("Sent")
+        self.sleep(1)
+
+    def _received_close(self,pwm):
+        rospy.loginfo("RECEIVED close")
+        self.change_state("close")
+        self.send_max_pwm(pwm)
+
+    def _received_open(self,pwm):
+        rospy.loginfo("RECEIVED: open")
+        self.change_state()
+        self.send_min_pwm(pwm)
+
+    def _still_open(self,pwm):
+        rospy.loginfo("STILL open")
+        self.send_min_pwm(pwm)
+
+    def _still_close(self,pwm):
+        rospy.loginfo("STILL close")
+        self.send_min_pwm(pwm)
+
     def send_pwm_continuesly(self):
-        while(True):
-            if self.next_state==self.state:
-                if self.state=="open":
-                    rospy.loginfo("STILL open")
-                elif self.state=="close":
-                    rospy.loginfo("STILL close")
+        with navio.pwm.PWM(self.rc_channel) as pwm:
+            pwm.enable()
+            pwm.set_period(50)
+            while(True):
+                if self.next_state==self.state:
+                    if self.state=="open":
+                        self._still_open(pwm)
+                    elif self.state=="close":
+                        self._still_close(pwm)
+                    else:
+                        rospy.logerr("Shit")
                 else:
-                    rospy.logerr("Shit")
-            else:
-                if self.next_state == "open":
-                    rospy.loginfo("RECEIVED: open")
-                    self.change_state()
-                elif self.next_state == "close":
-                    rospy.loginfo("RECEIVED close")
-                    self.change_state("close")
-                else:
-                    rospy.logerr("Ooo!")
-            time.sleep(1)
+                    if self.next_state == "open":
+                        self._received_open(pwm)
+                    elif self.next_state == "close":
+                        self._received_close(pwm)
+                    else:
+                        rospy.logerr("Ooo!")
 
     def task_failed(self):
         self.pub_stat.publish("failed")
