@@ -2,54 +2,62 @@
 import rospy
 import time
 from std_msgs.msg import String
-from tankmanager.srv import ToggleCover, ToggleCoverRequest, ToggleCoverResponse
 import navio.pwm
 import navio.util
 
 class TankManager:
     _NODE_NAME="tankmanager"
     _NODE_STATUS="tankmanager/status"
+    _NODE_CHANGE_STATUS="tankmanager/status/change"
+
     def __init__(self,rc_channel=4,min_pwm=1.250,max_pwm=1.750):
         self.rc_channel=rc_channel
         self.min_pwm=min_pwm
         self.max_pwm=max_pwm
-        #rospy.init_node(self._NODE_NAME,anonymous=True)
-        rospy.init_node(self._NODE_NAME)
-        self.pub_stat = rospy.Publisher(self._NODE_STATUS, String, queue_size=10)
-        self.rate = rospy.Rate(60)
-        #If apm is running kill this process
+        self._init_node()
+        self._init_states()
 
-    def task_finished(self):
-        self.pub_stat.publish("finished")
-    
+    def _init_node(self):
+        rospy.init_node(self._NODE_NAME)
+        self.pub_stat = rospy.Publisher(self._NODE_STATUS, String, queue_size=30)
+        self.sbc_stat = rospy.Subscriber(self._NODE_CHANGE_STATUS, String, self.change_next_state)
+        self.rate = rospy.Rate(30)
+
+    def _init_states(self):
+        self.state = "close"
+        self.next_state = "close"
+
+    def change_next_state(self,data):
+        self.next_state = data.data
+
+    def change_state(self,state="open"):
+        self.state = state
+
+    def publish_status(self):
+        self.pub_stat.publish(self.state)
+
+    def send_pwm_continuesly(self):
+        while(True):
+            if self.next_state==self.state:
+                if self.state=="open":
+                    rospy.loginfo("STILL open")
+                elif self.state=="close":
+                    rospy.loginfo("STILL close")
+                else:
+                    rospy.logerr("Shit")
+            else:
+                if self.next_state == "open":
+                    rospy.loginfo("RECEIVED: open")
+                    self.change_state()
+                elif self.next_state == "close":
+                    rospy.loginfo("RECEIVED close")
+                    self.change_state("close")
+                else:
+                    rospy.logerr("Ooo!")
+            time.sleep(1)
+
     def task_failed(self):
         self.pub_stat.publish("failed")
-
-    def openCover(self,atime=1):
-        rospy.loginfo("opening cover")
-        with navio.pwm.PWM(self.rc_channel) as pwm:
-            pwm.set_period(50)
-            pwm.enable()
-            start=time.time()
-            while(True):
-                now=time.time()
-                dist=now-start
-                if dist >= atime:
-                    break
-                pwm.set_duty_cycle(self.max_pwm)
-
-    def closeCover(self,atime=1):
-        rospy.loginfo("closing cover")
-        with navio.pwm.PWM(self.rc_channel) as pwm:
-            pwm.set_period(50)
-            pwm.enable()
-            start=time.time()
-            while(True):
-                now=time.time()
-                dist=now-start
-                if dist >= atime:
-                    break
-                pwm.set_duty_cycle(self.min_pwm)
 
     def sleep(self,sleep_time=5):
         i=0
@@ -61,14 +69,7 @@ class TankManager:
             rospy.loginfo("slept {} second(s)".format(i))
 
     def openAndClose(self,sleep_time=5):
-        self.openCover()
-        self.sleep()
-        self.closeCover()
-
-    def closeAndOpen(self,sleep_time=5):
-        self.closeCover()
-        self.sleep()
-        self.openCover()
+        self.send_pwm_continuesly()
 
 def main():
     tankmngr = TankManager(4)
@@ -76,8 +77,6 @@ def main():
         tankmngr.openAndClose(5)
     except:
         tankmngr.task_failed()
-    tankmngr.task_finished()
-
 if __name__ == "__main__":
     try:
         main()
