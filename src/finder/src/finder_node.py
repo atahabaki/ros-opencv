@@ -65,7 +65,7 @@ class Finder:
     def detect(self,open_window=False):
         _, fra = self.cap.read()
         self.detective = Detective(self.shape, fra, verbose=False)
-        img,cx,cy = self.detective.detectBySobelAndCanny(dimens=(self._WIDTH,self._HEIGHT))
+        img,cx,cy = self.detective.detectReds(dimens=(self._WIDTH,self._HEIGHT))
         if open_window:
             cv.imshow("img",img)
             if cv.waitKey(1) & 0xFF == ord('q'):

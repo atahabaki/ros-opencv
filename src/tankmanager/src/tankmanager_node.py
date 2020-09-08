@@ -36,55 +36,63 @@ class TankManager:
     def publish_status(self):
         self.pub_stat.publish(self.state)
 
-    def send_min_pwm(self,pwm):
-        rospy.loginfo("Sending min pwm ({}) to {}. channel...".format(self.min_pwm,self.rc_channel))
-        pwm.set_duty_cycle(self.min_pwm)
-        rospy.loginfo("Sent")
-        self.sleep(1)
-
-    def send_max_pwm(self,pwm):
-        rospy.loginfo("Sending max pwm ({}) to {}. channel...".format(self.min_pwm,self.rc_channel))
-        pwm.set_duty_cycle(self.max_pwm)
-        rospy.loginfo("Sent")
-        self.sleep(1)
-
     def _received_close(self,pwm):
         rospy.loginfo("RECEIVED close")
         self.change_state("close")
-        self.send_max_pwm(pwm)
 
     def _received_open(self,pwm):
         rospy.loginfo("RECEIVED: open")
         self.change_state()
-        self.send_min_pwm(pwm)
-
-    def _still_open(self,pwm):
-        rospy.loginfo("STILL open")
-        self.send_min_pwm(pwm)
-
-    def _still_close(self,pwm):
-        rospy.loginfo("STILL close")
-        self.send_min_pwm(pwm)
 
     def send_pwm_continuesly(self):
         with navio.pwm.PWM(self.rc_channel) as pwm:
             pwm.enable()
             pwm.set_period(50)
+
+            def _max_pwm():
+                pwm.set_duty_cycle(self.max_pwm)
+
+            def send_max_pwm():
+                rospy.loginfo("Sending max pwm ({}) to {}. channel...".format(self.min_pwm,self.rc_channel))
+                try:
+                    _max_pwm()
+                except:
+                    rospy.logerr("Error occured while sending max pwm...")
+                rospy.loginfo("Sent")
+                self.pub_stat.publish("close")
+
+            def _min_pwm():
+                pwm.set_duty_cycle(self.min_pwm)
+
+            def send_min_pwm():
+                rospy.loginfo("Sending max pwm ({}) to {}. channel...".format(self.min_pwm,self.rc_channel))
+                try:
+                    _min_pwm()
+                except:
+                    rospy.logerr("Error occured while sending min pwm...")
+                rospy.loginfo("Sent")
+                self.pub_stat.publish("open")
+
             while(True):
                 if self.next_state==self.state:
                     if self.state=="open":
-                        self._still_open(pwm)
+                        rospy.loginfo("STILL open")
+                        send_min_pwm()
                     elif self.state=="close":
-                        self._still_close(pwm)
+                        rospy.loginfo("STILL close")
+                        send_max_pwm()
                     else:
-                        rospy.logerr("Shit")
+                        rospy.logerr("States are the same but... unknown error happend...")
                 else:
                     if self.next_state == "open":
-                        self._received_open(pwm)
+                        rospy.loginfo("RECEIVED open")
+                        send_min_pwm()
                     elif self.next_state == "close":
-                        self._received_close(pwm)
+                        rospy.loginfo("RECEIVED close")
+                        send_max_pwm()
                     else:
                         rospy.logerr("Ooo!")
+            self.sleep(1)
 
     def task_failed(self):
         self.pub_stat.publish("failed")
@@ -98,13 +106,10 @@ class TankManager:
             i+=1
             rospy.loginfo("slept {} second(s)".format(i))
 
-    def openAndClose(self,sleep_time=5):
-        self.send_pwm_continuesly()
-
 def main():
     tankmngr = TankManager(4)
     try:
-        tankmngr.openAndClose(5)
+        tankmngr.send_pwm_continuesly()
     except:
         tankmngr.task_failed()
 if __name__ == "__main__":
