@@ -24,14 +24,14 @@ class Finder:
         # Image Capture
         self.cap = cv.VideoCapture(device_id)
         # Init Shape
-        self.shape = Shape(0,70,3000,8000,np.array([173,84,91]),np.array([53,48,68]))
+        self.shape = Shape(0,70,3000,8000,np.array([173,84,91]),np.array([53,48,68]),20,100000)
         # Init Finder Node
         #rospy.init_node(self._NODE_NAME, anonymous=True)
         rospy.init_node(self._NODE_NAME)
         # Init Publisher center X
         self.pub_where = rospy.Publisher(self._NODE_WHERE,Where,queue_size=10)
         # Init rate of message cycle
-        self.rate = rospy.Rate(60)
+        self.rate = rospy.Rate(10)
 
     def calcDistanceX(self,cx):
         return self._WIDTH/2-cx
@@ -47,10 +47,16 @@ class Finder:
         hx=self._WIDTH/2
         hy=self._HEIGHT/2
         dist=math.sqrt(hx**2+hy**2)
-        return distance/dist*100
+        if dist != 0:
+            return distance/dist*100
+        else:
+            return self._OUT_LIMIT_FLOAT
 
     def calcAngle(self,dx,dy):
-        return math.atan(dx/dy)
+        if dy != 0:
+            return math.atan(dx/dy)
+        else:
+            return self._OUT_LIMIT_FLOAT
 
     def calculate(self,cx,cy):
         if cx==None and cy==None:
@@ -91,9 +97,9 @@ class Finder:
         rospy.loginfo("Found @ ({},{}), distance: {}, distance (%): {}%, angle: {}".format(cx,cy,dist,dist_perc,ang))
 
 def main():
-    finder = Finder(2)
+    finder = Finder(0)
     while True:
-        cx,cy=finder.detect()
+        cx,cy=finder.detect(open_window=True)
         dist,dist_perc,ang=finder.calculate(cx,cy)
         finder.log_info(cx,cy,dist,dist_perc,ang)
         finder.publish(cx,cy,dist,dist_perc,ang)

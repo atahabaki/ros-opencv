@@ -10,7 +10,7 @@ class TankManager:
     _NODE_STATUS="tankmanager/status"
     _NODE_CHANGE_STATUS="tankmanager/status/change"
 
-    def __init__(self,rc_channel=4,min_pwm=1.250,max_pwm=1.750):
+    def __init__(self,rc_channel=5,min_pwm=1.250,max_pwm=1.750):
         self.rc_channel=rc_channel
         self.min_pwm=min_pwm
         self.max_pwm=max_pwm
@@ -87,12 +87,34 @@ class TankManager:
                     if self.next_state == "open":
                         rospy.loginfo("RECEIVED open")
                         send_min_pwm()
+                        self.change_state("open")
                     elif self.next_state == "close":
                         rospy.loginfo("RECEIVED close")
                         send_max_pwm()
+                        self.change_state("close")
                     else:
                         rospy.logerr("Ooo!")
             self.sleep(1)
+            
+    def test_node(self):
+        while(True):
+            if self.next_state==self.state:
+                if self.state=="open":
+                    rospy.loginfo("STILL open")
+                elif self.state=="close":
+                    rospy.loginfo("STILL close")
+                else:
+                    rospy.logerr("States are the same but... unknown error happend...")
+            else:
+                if self.next_state == "open":
+                    rospy.loginfo("RECEIVED open")
+                    self.change_state("open")
+                elif self.next_state == "close":
+                    rospy.loginfo("RECEIVED close")
+                    self.change_state("close")
+                else:
+                    rospy.logerr("Ooo!")
+        self.sleep(1)
 
     def task_failed(self):
         self.pub_stat.publish("failed")
@@ -110,10 +132,13 @@ def main():
     tankmngr = TankManager(4)
     try:
         tankmngr.send_pwm_continuesly()
+        #tankmngr.test_node()
     except:
         tankmngr.task_failed()
+
 if __name__ == "__main__":
     try:
         main()
     except rospy.ROSInterruptException:
         pass
+        #print("Something happend")
