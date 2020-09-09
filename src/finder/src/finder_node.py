@@ -3,7 +3,7 @@ import cv2 as cv
 import numpy as np
 import math
 import rospy
-from finder.msg import Where
+from finder.srv import Where, WhereRequest, WhereResponse
 from detective import Detective, Shape
 
 # TODO (1) Change print statements to rospy logs...
@@ -29,9 +29,14 @@ class Finder:
         #rospy.init_node(self._NODE_NAME, anonymous=True)
         rospy.init_node(self._NODE_NAME)
         # Init Publisher center X
-        self.pub_where = rospy.Publisher(self._NODE_WHERE,Where,queue_size=10)
+        #self.pub_where = rospy.Publisher(self._NODE_WHERE,Where,queue_size=10)
         # Init rate of message cycle
         self.rate = rospy.Rate(10)
+
+    def init_server(self):
+        self.finder_service = rospy.Service(self._NODE_WHERE,Where,self.detect)
+        rospy.loginfo("Ready to find...")
+        rospy.spin()
 
     def calcDistanceX(self,cx):
         return self._WIDTH/2-cx
@@ -78,32 +83,21 @@ class Finder:
                 exit(0)
         return (cx,cy)
 
-    def publish(self,cx,cy,dist,dist_perc,ang):
-        where = Where()
-        if cx==None and cy==None:
-            cx,cy=self._OUT_LIMIT_INT,self._OUT_LIMIT_INT
-            dist,dist_perc,ang=self._OUT_LIMIT_FLOAT,self._OUT_LIMIT_FLOAT,self._OUT_LIMIT_FLOAT
-        where.cx = cx
-        where.cy = cy
-        where.distance = dist
-        where.distance_perc = dist_perc
-        where.angle = ang
-        self.pub_where.publish(where)
-
     def sleep(self):
         self.rate.sleep()
 
     def log_info(self,cx,cy,dist,dist_perc,ang):
         rospy.loginfo("Found @ ({},{}), distance: {}, distance (%): {}%, angle: {}".format(cx,cy,dist,dist_perc,ang))
 
+    def try2find(self,req):
+        cx,cy=self.detect(open_window=req.open_window)
+        dist,dist_perc,ang=self.calculate(cx,cy)
+        self.log_info(cx,cy,dist,dist_perc,ang)
+        self.sleep()
+
 def main():
     finder = Finder(0)
-    while True:
-        cx,cy=finder.detect(open_window=True)
-        dist,dist_perc,ang=finder.calculate(cx,cy)
-        finder.log_info(cx,cy,dist,dist_perc,ang)
-        finder.publish(cx,cy,dist,dist_perc,ang)
-        finder.sleep()
+    finder.init_server()
 
 if __name__ == "__main__":
     try:

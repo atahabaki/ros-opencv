@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 import time
+import threading
 from finder.msg import Where
 from std_msgs.msg import String
 from mavros_msgs.msg import *
@@ -57,10 +58,12 @@ class Philosopher:
     def open_cover(self):
         self.tankmngr.publishThis("open")
 
+    def get_gps(self):
+        #try-except block for error catching...
+        pass
+
 def main():
-    philosopher = Philosopher()
-    #if philosopher.findermon.changed:
-    #    rospy.loginfo("Changed...")
+    philo = Philosopher()
 
 if __name__=="__main__":
     try:
