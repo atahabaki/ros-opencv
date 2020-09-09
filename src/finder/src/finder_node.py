@@ -34,7 +34,7 @@ class Finder:
         self.rate = rospy.Rate(10)
 
     def init_server(self):
-        self.finder_service = rospy.Service(self._NODE_WHERE,Where,self.detect)
+        self.finder_service = rospy.Service(self._NODE_WHERE,Where,self.try2find)
         rospy.loginfo("Ready to find...")
         rospy.spin()
 
@@ -83,9 +83,6 @@ class Finder:
                 exit(0)
         return (cx,cy)
 
-    def sleep(self):
-        self.rate.sleep()
-
     def log_info(self,cx,cy,dist,dist_perc,ang):
         rospy.loginfo("Found @ ({},{}), distance: {}, distance (%): {}%, angle: {}".format(cx,cy,dist,dist_perc,ang))
 
@@ -93,7 +90,9 @@ class Finder:
         cx,cy=self.detect(open_window=req.open_window)
         dist,dist_perc,ang=self.calculate(cx,cy)
         self.log_info(cx,cy,dist,dist_perc,ang)
-        self.sleep()
+        if cx == None and cy == None:
+            cx,cy = self._OUT_LIMIT_INT, self._OUT_LIMIT_INT
+        return WhereResponse(cx,cy,dist,dist_perc,ang)
 
 def main():
     finder = Finder(0)
