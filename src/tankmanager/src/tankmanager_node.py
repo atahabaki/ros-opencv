@@ -10,7 +10,7 @@ class TankManager:
     _NODE_STATUS="tankmanager/status"
     _NODE_CHANGE_STATUS="tankmanager/status/change"
 
-    def __init__(self,rc_channel=5,min_pwm=1.250,max_pwm=1.750):
+    def __init__(self,rc_channel=5,min_pwm=.800,max_pwm=2.200):
         self.rc_channel=rc_channel
         self.min_pwm=min_pwm
         self.max_pwm=max_pwm
@@ -36,14 +36,6 @@ class TankManager:
     def publish_status(self):
         self.pub_stat.publish(self.state)
 
-    def _received_close(self,pwm):
-        rospy.loginfo("RECEIVED close")
-        self.change_state("close")
-
-    def _received_open(self,pwm):
-        rospy.loginfo("RECEIVED: open")
-        self.change_state()
-
     def send_pwm_continuesly(self):
         with navio.pwm.PWM(self.rc_channel) as pwm:
             pwm.enable()
@@ -59,7 +51,7 @@ class TankManager:
                 except:
                     rospy.logerr("Error occured while sending max pwm...")
                 rospy.loginfo("Sent")
-                self.pub_stat.publish("close")
+                self.pub_stat.publish("open")
 
             def _min_pwm():
                 pwm.set_duty_cycle(self.min_pwm)
@@ -71,26 +63,26 @@ class TankManager:
                 except:
                     rospy.logerr("Error occured while sending min pwm...")
                 rospy.loginfo("Sent")
-                self.pub_stat.publish("open")
+                self.pub_stat.publish("close")
 
             while(True):
                 if self.next_state==self.state:
                     if self.state=="open":
                         rospy.loginfo("STILL open")
-                        send_min_pwm()
+                        send_max_pwm()
                     elif self.state=="close":
                         rospy.loginfo("STILL close")
-                        send_max_pwm()
+                        send_min_pwm()
                     else:
                         rospy.logerr("States are the same but... unknown error happend...")
                 else:
                     if self.next_state == "open":
                         rospy.loginfo("RECEIVED open")
-                        send_min_pwm()
+                        send_max_pwm()
                         self.change_state("open")
                     elif self.next_state == "close":
                         rospy.loginfo("RECEIVED close")
-                        send_max_pwm()
+                        send_min_pwm()
                         self.change_state("close")
                     else:
                         rospy.logerr("Ooo!")
