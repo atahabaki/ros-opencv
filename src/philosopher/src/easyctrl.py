@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rospy
+import time
 from std_msgs.msg import String
 from mavros_msgs.msg import *
 from mavros_msgs.srv import *
@@ -21,11 +22,6 @@ class EasyControl:
         else:
             print(f"Something happened while trying to {when} {what}")
     
-    def wait4connection(self):
-        self.info("Waiting 4 FCU connection...")
-        while not rospy.is_shutdown():
-            pass
-
     def __init_tankmanager_pub(self):
         self.tankmanager_pub = rospy.Publisher(self.tankmanager_change_pub,String,queue_size=10)
 

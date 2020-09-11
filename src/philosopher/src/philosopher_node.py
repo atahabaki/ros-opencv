@@ -2,6 +2,7 @@
 import rospy
 import time
 import threading
+from easyctrl import EasyControl
 from finder.msg import Where
 from std_msgs.msg import String
 from mavros_msgs.msg import *
@@ -62,11 +63,44 @@ class Philosopher:
         #try-except block for error catching...
         pass
 
+easyctrl = EasyControl()
+def test():
+    while(True):
+        print("""
+1) Arm
+2) Disarm
+3) Change mode to Stabilize
+4) Change mode to Guided
+5) Takeoff
+6) Land
+7) Open cover
+8) Close cover
+        """)
+        op = input("Input")
+        if op==1:
+            easyctrl.arm()
+        elif op==2:
+            easyctrl.disarm()
+        elif op==3:
+            easyctrl.change_mode("STABILIZE")
+        elif op==4:
+            easyctrl.change_mode()
+        elif op==5:
+            easyctrl.takeoff()
+        elif op==6:
+            easyctrl.land()
+        elif op==7:
+            easyctrl.opencover()
+        elif op==8:
+            easyctrl.closecover()
+        else:
+            easyctrl.exc_occured("finding corresponding operation","input")
+
 def main():
-    philo = Philosopher()
+    pass
 
 if __name__=="__main__":
     try:
-        main()
+        test()
     except:
         pass
