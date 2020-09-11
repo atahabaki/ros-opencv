@@ -10,7 +10,7 @@ class TankManager:
     _NODE_STATUS="tankmanager/status"
     _NODE_CHANGE_STATUS="tankmanager/status/change"
 
-    def __init__(self,rc_channel=5,min_pwm=.800,max_pwm=2.200):
+    def __init__(self,rc_channel=9,min_pwm=.800,max_pwm=2.200):
         self.rc_channel=rc_channel
         self.min_pwm=min_pwm
         self.max_pwm=max_pwm
@@ -87,6 +87,7 @@ class TankManager:
                     else:
                         rospy.logerr("Ooo!")
             self.sleep(1)
+        rospy.spin()
             
     def test_node(self):
         while(True):
@@ -121,7 +122,7 @@ class TankManager:
             rospy.loginfo("slept {} second(s)".format(i))
 
 def main():
-    tankmngr = TankManager(4)
+    tankmngr = TankManager(9)
     try:
         tankmngr.send_pwm_continuesly()
         #tankmngr.test_node()
