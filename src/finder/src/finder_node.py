@@ -20,7 +20,7 @@ class Finder:
     _OUT_LIMIT_INT=5000
     _OUT_LIMIT_FLOAT=5000.0
     # Replace the device_id parameter with your video dev. id
-    def __init__(self,device_id=2):
+    def __init__(self,device_id=0):
         # Image Capture
         self.cap = cv.VideoCapture(device_id)
         # Init Shape

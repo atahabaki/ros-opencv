@@ -2,16 +2,20 @@
 import rospy
 import time
 from std_msgs.msg import String
+from finder.srv import *
 from mavros_msgs.msg import *
 from mavros_msgs.srv import *
 
 class EasyControl:
     def __init__(self):
+        self._INT_LIMIT=5000
+        self._FLOAT_LIMIT=5000
         self.arming_srv_name = "/mavros/cmd/arming"
         self.takeoff_srv_name = "/mavros/cmd/takeoff"
         self.landing_srv_name = "/mavros/cmd/land"
         self.change_mode_srv_name = "/mavros/set_mode"
         self.tankmanager_change_pub = "tankmanager/status/change"
+        self.finder_srv_name = "/finder/where"
 
     def info(self,msg):
         rospy.loginfo(msg)
@@ -50,7 +54,7 @@ class EasyControl:
         except rospy.ROSException:
             self.exc_occured()
 
-    def takeoff(self,altitude):
+    def takeoff(self,altitude=6):
         self.__init_takeoff()
         try:
             self.takeoff_clnt(altitude=altitude,latitude=0,longitude=0,min_pitch=0,yaw=0)
@@ -105,3 +109,18 @@ class EasyControl:
             self.change_mode_clnt(custom_mode=mode_name)
         except:
             self.exc_occured(when="",what="changing mode")
+
+    def __init_findobj(self):
+        rospy.wait_for_service(self.finder_srv_name)
+        try:
+            self.finder_clnt = rospy.ServiceProxy(self.finder_srv_name,Where)
+        except:
+            self.exc_occured(what="finder obj")
+
+    def findobj(self,open_window=False):
+        self.__init_findobj()
+        try:
+            resp=self.finder_clnt(open_window)
+            return resp
+        except:
+            self.exc_occured(when="",what="find obj")

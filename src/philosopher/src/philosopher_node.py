@@ -1,30 +1,8 @@
 #!/usr/bin/env python
 import rospy
 import time
-import threading
 from easyctrl import EasyControl
-from finder.msg import Where
-from std_msgs.msg import String
-from mavros_msgs.msg import *
-from mavros_msgs.srv import *
-
-class TankController:
-    _TANKMNGR_CHANGE="tankmanager/status/change"
-    def __init__(self):
-        self.pub_stat_ = rospy.Publisher(self._TANKMNGR_CHANGE,String,queue_size=30)
-    
-    def publishThis(self,data,i=1):
-        try:
-            self.pub_stat_.publish(data)
-        except:
-            if i <= 5:
-                print("Unknown error occured while publishing \"{}\" on this topic: {}".format(data,self._TANKMNGR_CHANGE))
-                time.sleep(1)
-                i+=1
-                self.publishThis(data,i)
-            else:
-                print("Tried 5 times... Nothing works... Try to debug the code... Or look at the log files...")
-                exit()
+#from finder.msg import Where
 
 class WaypointManager:
     def __init__(self):
@@ -51,17 +29,7 @@ class Philosopher:
     def __init__(self):
         # TODO init FinderMonitor, TankController, WaypointManager
         rospy.init_node(self._NODE_NAME)
-        self.tankmngr = TankController()
-
-    def close_cover(self):
-        self.tankmngr.publishThis("close")
-
-    def open_cover(self):
-        self.tankmngr.publishThis("open")
-
-    def get_gps(self):
-        #try-except block for error catching...
-        pass
+        #self.tankmngr = TankController()
 
 easyctrl = EasyControl()
 def test():
@@ -75,8 +43,14 @@ def test():
 6) Land
 7) Open cover
 8) Close cover
+9) Open cover when detected red...
         """)
-        op = input("Input")
+        op = input("Command: ")
+        op = op.strip()
+        try:
+            op = int(op)
+        except:
+            print("Wrong type of command...")
         if op==1:
             easyctrl.arm()
         elif op==2:
@@ -93,6 +67,14 @@ def test():
             easyctrl.opencover()
         elif op==8:
             easyctrl.closecover()
+        elif op==9:
+            resp=easyctrl.findobj()
+            #print(resp)
+            if resp.cx!=None and resp.cx!=5000 and resp.cy!=None and resp.cy!=5000:
+                print("Found")
+            else:
+                print("Not found")
+               #easyctrl.opencover()
         else:
             easyctrl.exc_occured("finding corresponding operation","input")
 
