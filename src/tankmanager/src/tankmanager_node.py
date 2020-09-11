@@ -69,20 +69,20 @@ class TankManager:
                 if self.next_state==self.state:
                     if self.state=="open":
                         rospy.loginfo("STILL open")
-                        send_max_pwm()
+                        send_min_pwm()
                     elif self.state=="close":
                         rospy.loginfo("STILL close")
-                        send_min_pwm()
+                        send_max_pwm()
                     else:
                         rospy.logerr("States are the same but... unknown error happend...")
                 else:
                     if self.next_state == "open":
                         rospy.loginfo("RECEIVED open")
-                        send_max_pwm()
+                        send_min_pwm()
                         self.change_state("open")
                     elif self.next_state == "close":
                         rospy.loginfo("RECEIVED close")
-                        send_min_pwm()
+                        send_max_pwm()
                         self.change_state("close")
                     else:
                         rospy.logerr("Ooo!")
