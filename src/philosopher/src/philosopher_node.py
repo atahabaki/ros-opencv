@@ -2,7 +2,7 @@
 import rospy
 import time
 from finder.srv import *
-from std_msgs import String
+from std_msgs.msg import String
 from mavros_msgs.msg import *
 from mavros_msgs.srv import *
 #from philosopher import EasyControl
@@ -20,6 +20,7 @@ class Philosopher:
         self.tankmanager_status_name = "tankmanager/status"
         self.finder_srv_name = "/finder/where"
         self.mavros_state_name = "/mavros/state"
+        self.__init_servo_pub()
 
     def init(self):
         rospy.init_node("philosopher")
@@ -47,20 +48,21 @@ class Philosopher:
     #######################################
     # Servo Ctrl
     #######################################
+    
+    def __init_servo_pub(self):
+        self.tankmanager_change_pub = rospy.Publisher(self.tankmanager_change_name, String, queue_size=10)
 
     def open_cover(self):
         rospy.wait_for_message(self.tankmanager_status_name,String)
         try:
-            tankmanager_change_pub = rospy.Publisher(self.tankmanager_change_name, String, queue_size=10)
-            tankmanager_change_pub.publish("open")
+            self.tankmanager_change_pub.publish("open")
         except:
             rospy.logerr("Open cover failed.")
 
     def close_cover(self):
         rospy.wait_for_message(self.tankmanager_status_name,String)
         try:
-            tankmanager_change_pub = rospy.Publisher(self.tankmanager_change_name, String, queue_size=10)
-            tankmanager_change_pub.publish("close")
+            self.tankmanager_change_pub.publish("close")
         except:
             rospy.logerr("Close cover failed.")
 
@@ -125,27 +127,33 @@ def menu():
 4) Change mode to STABILIZE
 5) Takeoff
 6) Land
+7) Open cover
+8) Close cover
 """)
     x = input("Command (1-6): ")
-    x = x.strip()
     return x
 
 def main():
     philosopher = Philosopher()
+    philosopher.init()
     while not rospy.is_shutdown():
         x = menu()
-        if x == "1":
+        if x == 1:
             philosopher.arm()
-        elif x == "2":
+        elif x == 2:
             philosopher.disarm()
-        elif x == "3":
+        elif x == 3:
             philosopher.change2Guided()
-        elif x == "4":
+        elif x == 4:
             philosopher.change2Stabilize()
-        elif x == "5":
+        elif x == 5:
             philosopher.takeoff()
-        elif x == "6":
+        elif x == 6:
             philosopher.land()
+        elif x == 7:
+            philosopher.open_cover()
+        elif x == 8:
+            philosopher.close_cover()
         else:
             exit()
 
