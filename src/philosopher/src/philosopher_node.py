@@ -2,6 +2,7 @@
 import rospy
 import time
 from finder.srv import *
+from std_msgs import String
 from mavros_msgs.msg import *
 from mavros_msgs.srv import *
 #from philosopher import EasyControl
@@ -27,21 +28,19 @@ class Philosopher:
     # Arming
     #######################################
 
-    def __arm(self,data=True):
-        self.arming_clnt = rospy.ServiceProxy(self.arming_srv_name,CommandBool)
-        self.arming_clnt(data)
-
     def arm(self):
         rospy.wait_for_service(self.arming_srv_name)
         try:
-            self.__arm()
+            arming_clnt = rospy.ServiceProxy(self.arming_srv_name,CommandBool)
+            arming_clnt(True)
         except:
             rospy.logerr("Arming failed.")
 
     def disarm(self):
         rospy.wait_for_service(self.arming_srv_name)
         try:
-            self.__arm(data=False)
+            arming_clnt = rospy.ServiceProxy(self.arming_srv_name,CommandBool)
+            arming_clnt(False)
         except:
             rospy.logerr("Disarming failed.")
 
@@ -49,21 +48,19 @@ class Philosopher:
     # Servo Ctrl
     #######################################
 
-    def __pwm(self,data="open"):
-        self.tankmanager_change_pub = rospy.Publisher(self.tankmanager_change_name, String, queue_size=10)
-        self.tankmanager_change_pub.publish(data)
-
     def open_cover(self):
         rospy.wait_for_message(self.tankmanager_status_name,String)
         try:
-            self.__pwm()
+            tankmanager_change_pub = rospy.Publisher(self.tankmanager_change_name, String, queue_size=10)
+            tankmanager_change_pub.publish("open")
         except:
             rospy.logerr("Open cover failed.")
 
     def close_cover(self):
         rospy.wait_for_message(self.tankmanager_status_name,String)
         try:
-            self.__pwm()
+            tankmanager_change_pub = rospy.Publisher(self.tankmanager_change_name, String, queue_size=10)
+            tankmanager_change_pub.publish("close")
         except:
             rospy.logerr("Close cover failed.")
 
@@ -71,21 +68,19 @@ class Philosopher:
     # Mode changing
     #######################################
 
-    def __mode(self,mode_name="GUIDED",base_mode=0):
-        self.mavros_mode_clnt = rospy.ServiceProxy(self.change_mode_srv_name,SetMode)
-        self.mavros_mode_clnt(base_mode=base_mode,custom_mode=mode_name)
-
     def change2Guided(self):
         rospy.wait_for_service(self.change_mode_srv_name)
         try:
-            self.__mode()
+            self.mavros_mode_clnt = rospy.ServiceProxy(self.change_mode_srv_name,SetMode)
+            self.mavros_mode_clnt(custom_mode="GUIDED")
         except:
             rospy.logerr("Set mode \"GUIDED\" failed.")
 
     def change2Stabilize(self):
         rospy.wait_for_service(self.change_mode_srv_name)
         try:
-            self.__mode(mode_name="STABILIZE")
+            self.mavros_mode_clnt = rospy.ServiceProxy(self.change_mode_srv_name,SetMode)
+            self.mavros_mode_clnt(custom_mode="STABILIZE")
         except:
             rospy.logerr("Set mode \"STABILIZE\" failed.")
 
@@ -93,15 +88,12 @@ class Philosopher:
     #######################################
     # Landing Client
     #######################################
-    
-    def __land(self):
-        self.landing_clnt = rospy.ServiceProxy(self.landing_srv_name,CommandTOL)
-        self.landing_clnt(altitude=0,latitude=0,longtitude=0,min_pitch=0,yaw=0)
 
     def land(self):
         rospy.wait_for_service(self.landing_srv_name)
         try:
-            self.__land()
+            self.landing_clnt = rospy.ServiceProxy(self.landing_srv_name,CommandTOL)
+            self.landing_clnt(altitude=0,latitude=0,longtitude=0,min_pitch=0,yaw=0)
         except:
             rospy.logerr("Landing failed.")
 
@@ -109,14 +101,11 @@ class Philosopher:
     # Takeoff Client
     #######################################
     
-    def __takeoff(self,_altitude):
-        self.landing_clnt = rospy.ServiceProxy(self.takeoff_srv_name,CommandTOL)
-        self.landing_clnt(altitude=_altitude,latitude=0,longtitude=0,min_pitch=0,yaw=0)
-
-    def takeoff(self,altitude=6):
+    def takeoff(self,_altitude=6):
         rospy.wait_for_service(self.landing_srv_name)
         try:
-            self.__takeoff(_altitude=altitude)
+            self.landing_clnt = rospy.ServiceProxy(self.takeoff_srv_name,CommandTOL)
+            self.landing_clnt(altitude=_altitude,latitude=0,longtitude=0,min_pitch=0,yaw=0)
         except:
             rospy.logerr("Takeoff failed.")
 
