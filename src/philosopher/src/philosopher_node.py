@@ -129,11 +129,10 @@ class Philosopher:
         for _ in range(0,100):
             self.local_pos_pub.publish(self.waypoint)
             time.sleep(.1)
-        rospy.loginfo("Arming drone")
-        rospy.wait_for_service(self.landing_srv_name)
+        rospy.wait_for_service(self.takeoff_srv_name)
         try:
-            self.landing_clnt = rospy.ServiceProxy(self.takeoff_srv_name,CommandTOL)
-            self.landing_clnt(altitude=_altitude,latitude=0,longtitude=0,min_pitch=0,yaw=0)
+            self.takeoff_clnt = rospy.ServiceProxy(self.takeoff_srv_name,CommandTOL)
+            self.takeoff_clnt(altitude=_altitude,latitude=0,longtitude=0,min_pitch=0,yaw=0)
         except:
             rospy.logerr("Takeoff failed.")
 
@@ -285,9 +284,19 @@ def menu():
 6) Land
 7) Open cover
 8) Close cover
+9) Try mission
+10) The mission
 """)
     x = input("Command (1-6): ")
+    x = int(x)
     return x
+
+class WaypointX:
+    def __init__(self,x=0,y=0,z=0,psi=0):
+        self.x=x
+        self.y=y
+        self.z=z
+        self.psi=psi
 
 def main():
     philosopher = Philosopher()
@@ -310,6 +319,23 @@ def main():
             philosopher.open_cover()
         elif x == 8:
             philosopher.close_cover()
+        elif x == 9:
+            wplist=[WaypointX(0,0,6,0),WaypointX(20,0,6,0)]
+            i=0
+            print("len",len(wplist))
+            philosopher.init_pub_sub()
+            #philosopher.arm()
+            philosopher.takeoff(10)
+            philosopher.change2Guided()
+            while True:
+                if philosopher.check_waypoint_reached():
+                    if i < len(wplist):
+                        philosopher.set_destination(wplist[i].x,wplist[i].y,wplist[i].z,wplist[i].psi)
+                        i+=1
+                    else:
+                        philosopher.land()
+        elif x == 10:
+            pass
         else:
             exit()
 

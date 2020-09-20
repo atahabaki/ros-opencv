@@ -24,8 +24,8 @@ class TankManager:
         self.rate = rospy.Rate(30)
 
     def _init_states(self):
-        self.state = "close"
-        self.next_state = "close"
+        self.state = "open"
+        self.next_state = "open"
 
     def change_next_state(self,data):
         self.next_state = data.data
@@ -86,7 +86,6 @@ class TankManager:
                         self.change_state("close")
                     else:
                         rospy.logerr("Ooo!")
-            self.sleep(1)
         rospy.spin()
             
     def test_node(self):
@@ -107,19 +106,9 @@ class TankManager:
                     self.change_state("close")
                 else:
                     rospy.logerr("Ooo!")
-        self.sleep(1)
 
     def task_failed(self):
         self.pub_stat.publish("failed")
-
-    def sleep(self,sleep_time=5):
-        i=0
-        while(True):
-            if i >= sleep_time:
-                break
-            time.sleep(1)
-            i+=1
-            rospy.loginfo("slept {} second(s)".format(i))
 
 def main():
     tankmngr = TankManager(9)
