@@ -9,7 +9,7 @@ Let me tell you, what every single node I've written is doing...
 ### Philosopher
 
 It was designed to control, and maintain everything (arming, servo controlling, mood changing, and etc.)...
-That way, I could simply do whatever I want. For testing purposes, I've written that in an infinite `Tsukiyomi` loop :ok_hand:
+That way, I could simply do whatever I want. For testing purposes, I've written that in an infinite [Tsukuyomi](https://naruto.fandom.com/wiki/Tsukuyomi) loop :ok_hand:
 
 ### Passanger
 
